@@ -1,13 +1,14 @@
 #!/bin/bash
-rm build
-mkdir build
+mkdir -p build
 cd build
-mkdir dot
-mkdir png
-for i in `seq $1`
+mkdir -p dot
+mkdir -p png
+midfix=`date +%Y%m%d%H%M`
+mkdir $midfix
+cd $midfix
+for i in `seq $2`
 do
-    echo $i
-    ocaml ../rand.ml > "./dot/graph"$i."dot"
+    ocaml ../rand.ml $1 > "./dot/graph"$i."dot"
     dot -Tpng "./dot/graph"$i."dot" -o "./png/graph"$i."png"
 done
 

@@ -50,7 +50,8 @@ let create_graph node_num =
 let rec print_graph x y =
   Printf.printf "\tnode%d -> node%d\n" x y;()
 let () =
-  let graph_list = create_graph 20 in
+  let arg = int_of_string(Sys.argv.(1)) in
+  let graph_list = create_graph arg in
   let rec main_sub l =
     match l with
     | [] -> Printf.printf "}\n";()

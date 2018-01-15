@@ -95,9 +95,9 @@ let creating_pub_cpp i pub_list oc=
   \twhile (ros::ok()){
   \t\tstd_msgs::String msg;
   \t\tstd::stringstream ss;
-  \t\tss << \"hello world \" << count;
+  \t\tss << \"hello world from node%d sending\" << count;
   \t\tmsg.data = ss.str();
-  \t\tROS_INFO(\"%%s\", msg.data.c_str());\n";
+  \t\tROS_INFO(\"%%s\", msg.data.c_str());\n" i;
   List.iter (fun y -> print2 i y oc) pub_list;
   Printf.fprintf oc "\t\tros::spinOnce();
   \t\tloop_rate.sleep();
@@ -151,18 +151,18 @@ let print11 x y oc=
 let print12 x y sub_list_ex pub_list oc = 
   Printf.fprintf oc "\t\tvoid middlemanCallback%d(const std_msgs::String::ConstPtr& msg){
   \t\t\tif(" x;
-  List.iter (fun y -> print10 y x oc) sub_list_ex;
+  List.iter (fun z -> print10 z y oc) sub_list_ex;
   Printf.fprintf oc " true){
   \t\t\t\tusleep(d(gen)*1000000);
-  \t\t\t\tROS_INFO(\"I'm node%d last from node%d, intercepted: [%%s]\", msg->data.c_str());\n" x y;
+  \t\t\t\tROS_INFO(\"I'm node%d last from node%d, intercepted: [%%s]\", msg->data.c_str());\n" y x;
   List.iter (fun z -> print11 y z oc) pub_list;
-  List.iter (fun z -> print9 z x oc) sub_list_ex;
+  List.iter (fun z -> print9 z y oc) sub_list_ex;
   Printf.fprintf oc "\t\t\t}
   \t\t\telse{
-  \t\t\t\tROS_INFO(\"I'm node%d,ntercepted: [%%s]\", msg->data.c_str());
+  \t\t\t\tROS_INFO(\"I'm node%d, from node%d intercepted: [%%s]\", msg->data.c_str());
   \t\t\t\tsub_%d_%d_flag = 1;
   \t\t\t}
-  \t\t}\n" y x y
+  \t\t}\n" y x x y
 let creating_sub_pub_cpp i sub_list pub_list oc=
   Printf.fprintf oc "
   #include \"ros/ros.h\"
@@ -209,7 +209,7 @@ target_link_libraries(node%d ${catkin_LIBRARIES})
 add_dependencies(node%d test_src_generate_messages_cpp)\n" i i i i;creating_makefile_sub (i-1) oc)
   else ()
 let creating_makefile i = 
-  let file = "CMakefile.txt" in
+  let file = "CMakeLists.txt" in
   let oc = open_out file in
   Printf.fprintf oc 
 "cmake_minimum_required(VERSION 2.8.3)

@@ -29,28 +29,29 @@ let rec pick_list l num newl=
 let rec cut_graph g new_g =
   match g with
   | [] -> new_g
-  | (x,[]) :: xs -> cut_graph xs ((x,[]) :: new_g)
-  | (x,ls) :: xs -> (
+  | (x,t,[]) :: xs -> cut_graph xs ((x,t,[]) :: new_g)
+  | (x,t,ls) :: xs -> (
     let ls_sort = List.sort compare ls in
     let len = List.length ls in
     let new_l = pick_list ls_sort ((len+1)/2) [] in
-    cut_graph xs ((x,new_l):: new_g ))
+    cut_graph xs ((x,t,new_l):: new_g ))
 let create_graph node_num =
   let nodel = node_list node_num in
   let rec create_graph_sub l g=
+    let t = (Random.float 0.02) +. 0.01 in
     match l with
     | [] -> g
-    | x :: [] -> ((x,[])::g)
+    | x :: [] -> ((x,t,[])::g)
     | x :: ls -> 
       (let r = (Random.int (min 4 ((List.length l)-1))) + 1 in 
-        create_graph_sub ls ((x,pickup_node ls r)::g))
+        create_graph_sub ls ((x,t,pickup_node ls r)::g))
   in 
   let gt = create_graph_sub nodel [] in
   cut_graph gt []
 let rec search_prev g num meml=
   match g with
   | [] -> meml
-  | (i,l) :: gs -> 
+  | (i,t,l) :: gs -> 
   (
     if List.mem num l then
       search_prev gs num (i::meml)
@@ -62,10 +63,10 @@ let rec print_graph x y oc=
 let rec graph_io prev_g rest_g new_g =
   match rest_g with
   | [] -> new_g
-  | (i,l) :: xs -> 
+  | (i,t,l) :: xs -> 
   (
     let meml = search_prev prev_g i [] in
-    graph_io ((i,l)::prev_g) xs ((i,l,meml)::new_g)
+    graph_io ((i,t,l)::prev_g) xs ((i,t,l,meml)::new_g)
   )
 let creating_dot g=
   let file = "graph.dot" in
@@ -73,8 +74,8 @@ let creating_dot g=
   let rec creating_dot_sub l =
     match l with
     | [] -> Printf.fprintf oc "}\n";()
-    | (x,[]) :: xs -> Printf.fprintf oc "\tnode%d\n" x; creating_dot_sub xs;
-    | (x,ls) :: xs -> List.iter (fun y -> print_graph x y oc) ls ; creating_dot_sub xs;
+    | (x,t,[]) :: xs -> Printf.fprintf oc "\tnode%d\n" x; creating_dot_sub xs;
+    | (x,t,ls) :: xs -> List.iter (fun y -> print_graph x y oc) ls ; creating_dot_sub xs;
   in Printf.fprintf oc "digraph g{\n"; creating_dot_sub g ;close_out oc
 let print1 x y oc=
   Printf.fprintf oc "\tros::Publisher pub_%d_%d = n.advertise<std_msgs::String>(\"topic_%d_%d\", 1);\n" x y x y;()
@@ -90,12 +91,12 @@ let creating_pub_cpp i pub_list oc=
   \tros::NodeHandle n;\n" i;
   List.iter (fun y -> print1 i y oc) pub_list ;
   Printf.fprintf oc 
-  "\tros::Rate loop_rate(0.1);
+  "\tros::Rate loop_rate(1);
   \tint count = 0;
   \twhile (ros::ok()){
   \t\tstd_msgs::String msg;
   \t\tstd::stringstream ss;
-  \t\tss << \"hello world from node%d sending\" << count;
+  \t\tss << \"node%d sending \" << count;
   \t\tmsg.data = ss.str();
   \t\tROS_INFO(\"%%s\", msg.data.c_str());\n" i;
   List.iter (fun y -> print2 i y oc) pub_list;
@@ -113,7 +114,7 @@ let print3 x y oc=
   }\n" x y x;()
 let print4 x y oc = 
   Printf.fprintf oc "\tros::Subscriber sub_%d_%d = n.subscribe(\"topic_%d_%d\", 1, chatterCallback%d);\n" x y x y x;()
-let creating_sub_cpp i sub_list oc=
+let creating_sub_cpp i sub_list t oc=
   Printf.fprintf oc 
   "#include \"ros/ros.h\"
   #include \"std_msgs/String.h\"
@@ -121,7 +122,7 @@ let creating_sub_cpp i sub_list oc=
   #include <random>
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::normal_distribution<> d(2.0, 0.3);\n";
+  std::normal_distribution<> d(%f, 0.05);\n" t;
   List.iter (fun y -> print3 y i oc) sub_list;
   Printf.fprintf oc "int main(int argc, char **argv){
   \tros::init(argc, argv, \"node%d\");
@@ -163,7 +164,7 @@ let print12 x y sub_list_ex pub_list oc =
   \t\t\t\tsub_%d_%d_flag = 1;
   \t\t\t}
   \t\t}\n" y x x y
-let creating_sub_pub_cpp i sub_list pub_list oc=
+let creating_sub_pub_cpp i sub_list pub_list t oc=
   Printf.fprintf oc "
   #include \"ros/ros.h\"
   #include \"std_msgs/String.h\"
@@ -172,10 +173,10 @@ let creating_sub_pub_cpp i sub_list pub_list oc=
   #include <random>
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::normal_distribution<> d(2.0, 0.3);
+  std::normal_distribution<> d(%f, 0.3);
   class Node%d{
   \tpublic:
-  \t\tNode%d(){\n" i i;
+  \t\tNode%d(){\n" i i t;
   List.iter (fun y -> print5 y i oc) sub_list;
   List.iter (fun y -> print6 i y oc) pub_list;
   Printf.fprintf oc "\t\t}\n";
@@ -192,15 +193,15 @@ let creating_sub_pub_cpp i sub_list pub_list oc=
   \treturn 0;
   }\n" i i i
 
-let creating_node_cpp (i,pub_list,sub_list)=
+let creating_node_cpp (i,t,pub_list,sub_list)=
   let file = "node"^(string_of_int i)^".cpp" in
   let oc = open_out file in
   (if sub_list = [] then
     creating_pub_cpp i pub_list oc
   else if pub_list = [] then
-    creating_sub_cpp i sub_list oc
+    creating_sub_cpp i sub_list t oc
   else
-    creating_sub_pub_cpp i sub_list pub_list oc);close_out oc
+    creating_sub_pub_cpp i sub_list pub_list t oc);close_out oc
 let rec creating_makefile_sub i oc=
   if(i != 0) then
       (Printf.fprintf oc 

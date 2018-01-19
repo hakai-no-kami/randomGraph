@@ -231,15 +231,15 @@ catkin_package()
 include_directories(include ${catkin_INCLUDE_DIRS})\n";
 creating_makefile_sub i oc;close_out oc
 let writing_topic x y oc =
-  Printf.fprintf oc "\t\t- /topic_%d_%d\n" x y
+  Printf.fprintf oc "    - /topic_%d_%d\n" x y
 let writing_yaml (i,t,pub_list,sub_list) oc =
-  Printf.fprintf oc "- nodename:/node%d\n\tcore: 0\nsub_topic:" i;
+  Printf.fprintf oc "- nodename:/node%d\n  core: 0\n  sub_topic:" i;
   (if sub_list = [] then
     (Printf.fprintf oc " \"null\"\n")
   else
-    (Printf.fprintf oc "\n";List.iter (fun y -> writing_topic y i oc) (List.sort compare sub_list));
-  Printf.fprintf oc "\tpub_topic:\n\t\t- /rosout\n";List.iter (fun y -> writing_topic i y oc) (List.sort compare pub_list);
-  Printf.fprintf oc "\tshed_info:\n\t\t- core: 0\n\t\t\tpriority: 0\n\t\t\trun_time: %d\n\t\t\tignorable: 0\n\t\t\tgroup: 0\n" (int_of_float ((t+.0.01)*.1000.0))
+    (Printf.fprintf oc "\n";List.iter (fun y -> writing_topic y i oc) (List.sort compare sub_list)));
+  Printf.fprintf oc "  pub_topic:\n    - /rosout\n";List.iter (fun y -> writing_topic i y oc) (List.sort compare pub_list);
+  Printf.fprintf oc "  sched_info:\n    - core: 0\n      priority: 0\n      run_time: %d\n      ignorable: 0\n      group: 0\n" (int_of_float ((t+.0.01)*.1000.0))
 let creating_yaml g =
   let file = "scheduler_rosch.yaml" in
   let oc = open_out file in

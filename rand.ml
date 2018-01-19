@@ -58,7 +58,7 @@ let rec search_prev g num meml=
     else
       search_prev gs num meml
   )
-let rec print_graph x y t oc=
+let rec print_graph x y oc=
   Printf.fprintf oc "\tnode%d -> node%d\n" x y;()
 let rec graph_io prev_g rest_g new_g =
   match rest_g with
@@ -74,8 +74,8 @@ let creating_dot g=
   let rec creating_dot_sub l =
     match l with
     | [] -> Printf.fprintf oc "}\n";()
-    | (x,t,[]) :: xs -> Printf.fprintf oc "\tnode%d[label=\"node%d t=%f\"]\n" x x t; creating_dot_sub xs;
-    | (x,t,ls) :: xs -> List.iter (fun y -> print_graph x y t oc) ls ; Printf.fprintf oc "\tnode%d[label=\"node%d t=%f\"];\n" x x t;creating_dot_sub xs;
+    | (x,t,[],_) :: xs -> Printf.fprintf oc "\tnode%d[label=\"node%d t=%f\"]\n" x x t; creating_dot_sub xs;
+    | (x,t,ls,_) :: xs -> List.iter (fun y -> print_graph x y oc) ls ; Printf.fprintf oc "\tnode%d[label=\"node%d t=%f\"];\n" x x t;creating_dot_sub xs;
   in Printf.fprintf oc "digraph g{\n"; creating_dot_sub g ;close_out oc
 let creating_dot2 g=
   let file = "graph2.dot" in
@@ -83,8 +83,8 @@ let creating_dot2 g=
   let rec creating_dot_sub2 l =
     match l with
     | [] -> Printf.fprintf oc "}\n";()
-    | (x,t,[]) :: xs -> Printf.fprintf oc "\tnode%d\n" x; creating_dot_sub2 xs;
-    | (x,t,ls) :: xs -> List.iter (fun y -> print_graph x y t oc) ls ;creating_dot_sub2 xs;
+    | (x,t,[],_) :: xs -> Printf.fprintf oc "\tnode%d\n" x; creating_dot_sub2 xs;
+    | (x,t,ls,_) :: xs -> List.iter (fun y -> print_graph x y oc) ls ;creating_dot_sub2 xs;
   in Printf.fprintf oc "digraph g{\n"; creating_dot_sub2 g ;close_out oc
 let print1 x y oc=
   Printf.fprintf oc "\tros::Publisher pub_%d_%d = n.advertise<std_msgs::String>(\"topic_%d_%d\", 1);\n" x y x y;()
@@ -100,7 +100,7 @@ let creating_pub_cpp i pub_list oc=
   \tros::NodeHandle n;\n" i;
   List.iter (fun y -> print1 i y oc) pub_list ;
   Printf.fprintf oc 
-  "\tros::Rate loop_rate(1);
+  "\tros::Rate loop_rate(2);
   \tint count = 0;
   \twhile (ros::ok()){
   \t\tstd_msgs::String msg;
@@ -244,8 +244,19 @@ let creating_yaml g =
   let file = "scheduler_rosch.yaml" in
   let oc = open_out file in
   List.iter (fun y -> writing_yaml y oc) g;close_out oc
+let topnode_list g =
+  List.filter (fun (i,t,pub_list,sub_list) -> sub_list = []) g
+let create_node0 g =
+  let tl = topnode_list g in
+  if (List.length tl != 1) then
+    (let temp = List.map (fun (i,t,pub_list,sub_list) -> i) tl in g @ [(0,((Random.float 0.02) +. 0.01),temp,[])] )
+  else
+    g
 let () =
   let arg = int_of_string(Sys.argv.(1)) in
   let graph_list = create_graph arg in
-  let graph_sub_pub = graph_io [] graph_list [] in
-  creating_dot graph_list;creating_dot2 graph_list;List.iter creating_node_cpp graph_sub_pub;creating_makefile arg;creating_yaml graph_sub_pub;()
+  let graph_temp = graph_io [] graph_list [] in
+  let graph_temp2 = create_node0 graph_temp in
+  let graph_temp3 = List.map (fun (i,t,pub_list,sub_list) -> (i,t,pub_list)) graph_temp2 in
+  let graph_sub_pub = graph_io [] (List.rev graph_temp3) [] in
+  creating_dot graph_sub_pub;creating_dot2 graph_sub_pub;List.iter creating_node_cpp graph_sub_pub;creating_makefile arg;creating_yaml graph_sub_pub;()

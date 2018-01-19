@@ -58,7 +58,7 @@ let rec search_prev g num meml=
     else
       search_prev gs num meml
   )
-let rec print_graph x y oc=
+let rec print_graph x y t oc=
   Printf.fprintf oc "\tnode%d -> node%d\n" x y;()
 let rec graph_io prev_g rest_g new_g =
   match rest_g with
@@ -74,9 +74,18 @@ let creating_dot g=
   let rec creating_dot_sub l =
     match l with
     | [] -> Printf.fprintf oc "}\n";()
-    | (x,t,[]) :: xs -> Printf.fprintf oc "\tnode%d\n" x; creating_dot_sub xs;
-    | (x,t,ls) :: xs -> List.iter (fun y -> print_graph x y oc) ls ; creating_dot_sub xs;
+    | (x,t,[]) :: xs -> Printf.fprintf oc "\tnode%d[label=\"node%d t=%f\"]\n" x x t; creating_dot_sub xs;
+    | (x,t,ls) :: xs -> List.iter (fun y -> print_graph x y t oc) ls ; Printf.fprintf oc "\tnode%d[label=\"node%d t=%f\"];\n" x x t;creating_dot_sub xs;
   in Printf.fprintf oc "digraph g{\n"; creating_dot_sub g ;close_out oc
+let creating_dot2 g=
+  let file = "graph2.dot" in
+  let oc = open_out file in
+  let rec creating_dot_sub2 l =
+    match l with
+    | [] -> Printf.fprintf oc "}\n";()
+    | (x,t,[]) :: xs -> Printf.fprintf oc "\tnode%d\n" x; creating_dot_sub2 xs;
+    | (x,t,ls) :: xs -> List.iter (fun y -> print_graph x y t oc) ls ;creating_dot_sub2 xs;
+  in Printf.fprintf oc "digraph g{\n"; creating_dot_sub2 g ;close_out oc
 let print1 x y oc=
   Printf.fprintf oc "\tros::Publisher pub_%d_%d = n.advertise<std_msgs::String>(\"topic_%d_%d\", 1);\n" x y x y;()
 let print2 x y oc = 
@@ -122,7 +131,7 @@ let creating_sub_cpp i sub_list t oc=
   #include <random>
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::normal_distribution<> d(%f, 0.05);\n" t;
+  std::normal_distribution<> d(%f, 0.005);\n" t;
   List.iter (fun y -> print3 y i oc) sub_list;
   Printf.fprintf oc "int main(int argc, char **argv){
   \tros::init(argc, argv, \"node%d\");
@@ -173,10 +182,10 @@ let creating_sub_pub_cpp i sub_list pub_list t oc=
   #include <random>
   std::random_device rd;
   std::mt19937 gen(rd());
-  std::normal_distribution<> d(%f, 0.3);
+  std::normal_distribution<> d(%f, 0.005);
   class Node%d{
   \tpublic:
-  \t\tNode%d(){\n" i i t;
+  \t\tNode%d(){\n" t i i;
   List.iter (fun y -> print5 y i oc) sub_list;
   List.iter (fun y -> print6 i y oc) pub_list;
   Printf.fprintf oc "\t\t}\n";
@@ -221,9 +230,22 @@ generate_messages(DEPENDENCIES std_msgs)
 catkin_package()
 include_directories(include ${catkin_INCLUDE_DIRS})\n";
 creating_makefile_sub i oc;close_out oc
-
+let writing_topic x y oc =
+  Printf.fprintf oc "\t\t- /topic_%d_%d\n" x y
+let writing_yaml (i,t,pub_list,sub_list) oc =
+  Printf.fprintf oc "- nodename:/node%d\n\tcore: 0\nsub_topic:" i;
+  (if sub_list = [] then
+    (Printf.fprintf oc " \"null\"\n")
+  else
+    (Printf.fprintf oc "\n";List.iter (fun y -> writing_topic y i oc) (List.sort compare sub_list));
+  Printf.fprintf oc "\tpub_topic:\n\t\t- /rosout\n";List.iter (fun y -> writing_topic i y oc) (List.sort compare pub_list);
+  Printf.fprintf oc "\tshed_info:\n\t\t- core: 0\n\t\t\tpriority: 0\n\t\t\trun_time: %d\n\t\t\tignorable: 0\n\t\t\tgroup: 0\n" (int_of_float ((t+.0.01)*.1000.0))
+let creating_yaml g =
+  let file = "scheduler_rosch.yaml" in
+  let oc = open_out file in
+  List.iter (fun y -> writing_yaml y oc) g;close_out oc
 let () =
   let arg = int_of_string(Sys.argv.(1)) in
   let graph_list = create_graph arg in
   let graph_sub_pub = graph_io [] graph_list [] in
-  creating_dot graph_list;List.iter creating_node_cpp graph_sub_pub;creating_makefile arg;()
+  creating_dot graph_list;creating_dot2 graph_list;List.iter creating_node_cpp graph_sub_pub;creating_makefile arg;creating_yaml graph_sub_pub;()

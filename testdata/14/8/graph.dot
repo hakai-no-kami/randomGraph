@@ -1,0 +1,42 @@
+digraph g{
+	node14[label="node14 t=0.013514"]
+	node13 -> node14
+	node13[label="node13 t=0.011283"];
+	node12 -> node14
+	node12[label="node12 t=0.017600"];
+	node11 -> node12
+	node11[label="node11 t=0.018367"];
+	node10 -> node12
+	node10 -> node11
+	node10[label="node10 t=0.013957"];
+	node9 -> node11
+	node9 -> node10
+	node9[label="node9 t=0.016350"];
+	node8 -> node12
+	node8[label="node8 t=0.029162"];
+	node7 -> node11
+	node7 -> node10
+	node7 -> node9
+	node7[label="node7 t=0.015073"];
+	node6 -> node7
+	node6[label="node6 t=0.011235"];
+	node5 -> node8
+	node5 -> node6
+	node5[label="node5 t=0.014269"];
+	node4 -> node12
+	node4 -> node11
+	node4[label="node4 t=0.014659"];
+	node3 -> node10
+	node3[label="node3 t=0.012940"];
+	node2 -> node6
+	node2 -> node3
+	node2[label="node2 t=0.016828"];
+	node1 -> node6
+	node1 -> node5
+	node1[label="node1 t=0.019618"];
+	node0 -> node13
+	node0 -> node4
+	node0 -> node2
+	node0 -> node1
+	node0[label="node0 t=0.018133"];
+}

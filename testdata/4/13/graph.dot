@@ -1,0 +1,9 @@
+digraph g{
+	node4[label="node4 t=0.016885"]
+	node3 -> node4
+	node3[label="node3 t=0.023482"];
+	node2 -> node3
+	node2[label="node2 t=0.024177"];
+	node1 -> node2
+	node1[label="node1 t=0.013662"];
+}

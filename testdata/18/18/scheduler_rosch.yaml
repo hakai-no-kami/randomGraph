@@ -1,0 +1,289 @@
+- nodename:/node18
+  core: 0
+  sub_topic:
+    - /topic_17_18
+  pub_topic:
+    - /rosout
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 38
+      ignorable: 0
+      group: 0
+- nodename:/node17
+  core: 0
+  sub_topic:
+    - /topic_12_17
+    - /topic_15_17
+    - /topic_16_17
+  pub_topic:
+    - /rosout
+    - /topic_17_18
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 31
+      ignorable: 0
+      group: 0
+- nodename:/node16
+  core: 0
+  sub_topic:
+    - /topic_13_16
+  pub_topic:
+    - /rosout
+    - /topic_16_17
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 35
+      ignorable: 0
+      group: 0
+- nodename:/node15
+  core: 0
+  sub_topic:
+    - /topic_6_15
+    - /topic_8_15
+    - /topic_12_15
+    - /topic_13_15
+    - /topic_14_15
+  pub_topic:
+    - /rosout
+    - /topic_15_17
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 23
+      ignorable: 0
+      group: 0
+- nodename:/node14
+  core: 0
+  sub_topic:
+    - /topic_6_14
+    - /topic_8_14
+    - /topic_13_14
+  pub_topic:
+    - /rosout
+    - /topic_14_15
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 23
+      ignorable: 0
+      group: 0
+- nodename:/node13
+  core: 0
+  sub_topic:
+    - /topic_4_13
+    - /topic_5_13
+    - /topic_10_13
+    - /topic_11_13
+  pub_topic:
+    - /rosout
+    - /topic_13_14
+    - /topic_13_15
+    - /topic_13_16
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 29
+      ignorable: 0
+      group: 0
+- nodename:/node12
+  core: 0
+  sub_topic:
+    - /topic_3_12
+    - /topic_4_12
+    - /topic_5_12
+    - /topic_8_12
+    - /topic_10_12
+    - /topic_11_12
+  pub_topic:
+    - /rosout
+    - /topic_12_15
+    - /topic_12_17
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 37
+      ignorable: 0
+      group: 0
+- nodename:/node11
+  core: 0
+  sub_topic:
+    - /topic_3_11
+    - /topic_4_11
+    - /topic_10_11
+  pub_topic:
+    - /rosout
+    - /topic_11_12
+    - /topic_11_13
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 21
+      ignorable: 0
+      group: 0
+- nodename:/node10
+  core: 0
+  sub_topic:
+    - /topic_2_10
+    - /topic_7_10
+    - /topic_9_10
+  pub_topic:
+    - /rosout
+    - /topic_10_11
+    - /topic_10_12
+    - /topic_10_13
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 38
+      ignorable: 0
+      group: 0
+- nodename:/node9
+  core: 0
+  sub_topic:
+    - /topic_3_9
+    - /topic_7_9
+  pub_topic:
+    - /rosout
+    - /topic_9_10
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 29
+      ignorable: 0
+      group: 0
+- nodename:/node8
+  core: 0
+  sub_topic:
+    - /topic_7_8
+  pub_topic:
+    - /rosout
+    - /topic_8_12
+    - /topic_8_14
+    - /topic_8_15
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 29
+      ignorable: 0
+      group: 0
+- nodename:/node7
+  core: 0
+  sub_topic:
+    - /topic_1_7
+    - /topic_6_7
+  pub_topic:
+    - /rosout
+    - /topic_7_8
+    - /topic_7_9
+    - /topic_7_10
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 30
+      ignorable: 0
+      group: 0
+- nodename:/node6
+  core: 0
+  sub_topic:
+    - /topic_2_6
+  pub_topic:
+    - /rosout
+    - /topic_6_7
+    - /topic_6_14
+    - /topic_6_15
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 34
+      ignorable: 0
+      group: 0
+- nodename:/node5
+  core: 0
+  sub_topic:
+    - /topic_0_5
+  pub_topic:
+    - /rosout
+    - /topic_5_12
+    - /topic_5_13
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 35
+      ignorable: 0
+      group: 0
+- nodename:/node4
+  core: 0
+  sub_topic:
+    - /topic_0_4
+  pub_topic:
+    - /rosout
+    - /topic_4_11
+    - /topic_4_12
+    - /topic_4_13
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 22
+      ignorable: 0
+      group: 0
+- nodename:/node3
+  core: 0
+  sub_topic:
+    - /topic_2_3
+  pub_topic:
+    - /rosout
+    - /topic_3_9
+    - /topic_3_11
+    - /topic_3_12
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 36
+      ignorable: 0
+      group: 0
+- nodename:/node2
+  core: 0
+  sub_topic:
+    - /topic_0_2
+  pub_topic:
+    - /rosout
+    - /topic_2_3
+    - /topic_2_6
+    - /topic_2_10
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 30
+      ignorable: 0
+      group: 0
+- nodename:/node1
+  core: 0
+  sub_topic:
+    - /topic_0_1
+  pub_topic:
+    - /rosout
+    - /topic_1_7
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 37
+      ignorable: 0
+      group: 0
+- nodename:/node0
+  core: 0
+  sub_topic: "null"
+  pub_topic:
+    - /rosout
+    - /topic_0_1
+    - /topic_0_2
+    - /topic_0_4
+    - /topic_0_5
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 29
+      ignorable: 0
+      group: 0

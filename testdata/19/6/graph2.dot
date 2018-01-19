@@ -1,0 +1,36 @@
+digraph g{
+	node19
+	node18 -> node19
+	node17 -> node18
+	node16 -> node19
+	node15 -> node19
+	node14 -> node16
+	node13 -> node16
+	node13 -> node15
+	node13 -> node14
+	node12 -> node16
+	node12 -> node13
+	node11 -> node18
+	node10 -> node13
+	node9 -> node19
+	node8 -> node9
+	node7 -> node8
+	node6 -> node9
+	node5 -> node7
+	node4 -> node15
+	node4 -> node13
+	node4 -> node5
+	node3 -> node6
+	node2 -> node13
+	node2 -> node9
+	node2 -> node7
+	node1 -> node5
+	node1 -> node3
+	node1 -> node2
+	node0 -> node17
+	node0 -> node12
+	node0 -> node11
+	node0 -> node10
+	node0 -> node4
+	node0 -> node1
+}

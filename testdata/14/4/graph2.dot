@@ -1,0 +1,27 @@
+digraph g{
+	node14
+	node13 -> node14
+	node12 -> node13
+	node11 -> node13
+	node11 -> node12
+	node10 -> node11
+	node9 -> node13
+	node9 -> node11
+	node8 -> node12
+	node7 -> node13
+	node7 -> node10
+	node6 -> node10
+	node6 -> node9
+	node6 -> node8
+	node5 -> node9
+	node4 -> node13
+	node3 -> node12
+	node3 -> node6
+	node3 -> node4
+	node2 -> node5
+	node1 -> node12
+	node0 -> node7
+	node0 -> node3
+	node0 -> node2
+	node0 -> node1
+}

@@ -1,0 +1,153 @@
+- nodename:/node10
+  core: 0
+  sub_topic:
+    - /topic_9_10
+  pub_topic:
+    - /rosout
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 30
+      ignorable: 0
+      group: 0
+- nodename:/node9
+  core: 0
+  sub_topic:
+    - /topic_8_9
+  pub_topic:
+    - /rosout
+    - /topic_9_10
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 33
+      ignorable: 0
+      group: 0
+- nodename:/node8
+  core: 0
+  sub_topic:
+    - /topic_2_8
+    - /topic_6_8
+    - /topic_7_8
+  pub_topic:
+    - /rosout
+    - /topic_8_9
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 25
+      ignorable: 0
+      group: 0
+- nodename:/node7
+  core: 0
+  sub_topic:
+    - /topic_1_7
+    - /topic_4_7
+    - /topic_6_7
+  pub_topic:
+    - /rosout
+    - /topic_7_8
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 37
+      ignorable: 0
+      group: 0
+- nodename:/node6
+  core: 0
+  sub_topic:
+    - /topic_4_6
+    - /topic_5_6
+  pub_topic:
+    - /rosout
+    - /topic_6_7
+    - /topic_6_8
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 30
+      ignorable: 0
+      group: 0
+- nodename:/node5
+  core: 0
+  sub_topic:
+    - /topic_2_5
+    - /topic_3_5
+  pub_topic:
+    - /rosout
+    - /topic_5_6
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 33
+      ignorable: 0
+      group: 0
+- nodename:/node4
+  core: 0
+  sub_topic:
+    - /topic_2_4
+  pub_topic:
+    - /rosout
+    - /topic_4_6
+    - /topic_4_7
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 32
+      ignorable: 0
+      group: 0
+- nodename:/node3
+  core: 0
+  sub_topic:
+    - /topic_0_3
+  pub_topic:
+    - /rosout
+    - /topic_3_5
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 36
+      ignorable: 0
+      group: 0
+- nodename:/node2
+  core: 0
+  sub_topic:
+    - /topic_0_2
+  pub_topic:
+    - /rosout
+    - /topic_2_4
+    - /topic_2_5
+    - /topic_2_8
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 25
+      ignorable: 0
+      group: 0
+- nodename:/node1
+  core: 0
+  sub_topic:
+    - /topic_0_1
+  pub_topic:
+    - /rosout
+    - /topic_1_7
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 39
+      ignorable: 0
+      group: 0
+- nodename:/node0
+  core: 0
+  sub_topic: "null"
+  pub_topic:
+    - /rosout
+    - /topic_0_1
+    - /topic_0_2
+    - /topic_0_3
+  sched_info:
+    - core: 0
+      priority: 0
+      run_time: 32
+      ignorable: 0
+      group: 0

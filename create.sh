@@ -1,7 +1,7 @@
 #!/bin/bash
 mkdir -p build
 cd build
-midfix=`date +%Y%m%d%H%M`
+midfix=`date +%Y%m%d%H%M%S`
 mkdir $midfix
 cd $midfix
 for i in `seq $2`

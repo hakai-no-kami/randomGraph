@@ -43,7 +43,7 @@ let create_graph node_num =
     | [] -> g
     | x :: [] -> ((x,t,[])::g)
     | x :: ls -> 
-      (let r = (Random.int (min 4 ((List.length l)-1))) + 1 in 
+      (let r = (Random.int (min 6 ((List.length l)-1))) + 1 in 
         create_graph_sub ls ((x,t,pickup_node ls r)::g))
   in 
   let gt = create_graph_sub nodel [] in

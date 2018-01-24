@@ -66,8 +66,18 @@ let rec graph_io prev_g rest_g new_g =
   | (i,t,l) :: xs -> 
   (
     let meml = search_prev prev_g i [] in
-    graph_io ((i,t,l)::prev_g) xs ((i,t,l,meml)::new_g)
+    graph_io ((i,t,l)::prev_g) xs ((i,t,List.sort compare l,List.sort compare meml)::new_g)
   )
+let topnode_list g =
+  List.filter (fun (i,t,pub_list,sub_list) -> sub_list = []) g
+let create_node0 g =
+  let tl = topnode_list g in
+  if (List.length tl != 1) then
+    (let temp = List.map (fun (i,t,pub_list,sub_list) -> i) tl in g @ [(0,((Random.float 0.02) +. 0.01),temp,[])] )
+  else
+    g
+let node0_exists g =
+  List.exists (fun (i,t,pub_list,sub_list) -> i = 0) g
 let creating_dot g=
   let file = "graph.dot" in
   let oc = open_out file in
@@ -100,14 +110,14 @@ let creating_pub_cpp i pub_list oc=
   \tros::NodeHandle n;\n" i;
   List.iter (fun y -> print1 i y oc) pub_list ;
   Printf.fprintf oc 
-  "\tros::Rate loop_rate(2);
+  "\tros::Rate loop_rate(4);
   \tint count = 0;
   \twhile (ros::ok()){
   \t\tstd_msgs::String msg;
   \t\tstd::stringstream ss;
-  \t\tss << \"node%d sending \" << count;
+  \t\tss << count;
   \t\tmsg.data = ss.str();
-  \t\tROS_INFO(\"%%s\", msg.data.c_str());\n" i;
+  \t\tROS_INFO(\"%%s\", msg.data.c_str());\n";
   List.iter (fun y -> print2 i y oc) pub_list;
   Printf.fprintf oc "\t\tros::spinOnce();
   \t\tloop_rate.sleep();
@@ -118,8 +128,7 @@ let creating_pub_cpp i pub_list oc=
 let print3 x y oc=
   Printf.fprintf oc 
   "void chatterCallback%d(const std_msgs::String::ConstPtr& msg){
-  \tusleep(d(gen)*1000000);
-  \tROS_INFO(\"I'm node%d and heard from node%d: [%%s]\", msg->data.c_str());
+  \tROS_INFO(\"node%d -> node%d: [%%s]\", msg->data.c_str());
   }\n" x y x;()
 let print4 x y oc = 
   Printf.fprintf oc "\tros::Subscriber sub_%d_%d = n.subscribe(\"topic_%d_%d\", 1, chatterCallback%d);\n" x y x y x;()
@@ -128,14 +137,18 @@ let creating_sub_cpp i sub_list t oc=
   "#include \"ros/ros.h\"
   #include \"std_msgs/String.h\"
   #include \"unistd.h\"
-  #include <random>
-  std::random_device rd;
-  std::mt19937 gen(rd());
-  std::normal_distribution<> d(%f, 0.005);\n" t;
+  //#include <random>
+  //std::random_device rd;
+  //std::mt19937 gen(rd());
+  //std::normal_distribution<> d(%f, 0.005);\n" t;
   List.iter (fun y -> print3 y i oc) sub_list;
   Printf.fprintf oc "int main(int argc, char **argv){
   \tros::init(argc, argv, \"node%d\");
-  \tros::NodeHandle n;\n" i;
+  \tros::NodeHandle n;
+  //\tindex = 0;
+  //\tfor(int i = 0;i < sizeof(rarray) / sizeof(rarray[0]);++i){
+  //\t\trarray[i] = d(gen);
+  //\t}\n" i;
   List.iter (fun y -> print4 y i oc) sub_list;
   Printf.fprintf oc "
   \tros::spin();
@@ -163,16 +176,24 @@ let print12 x y sub_list_ex pub_list oc =
   \t\t\tif(" x;
   List.iter (fun z -> print10 z y oc) sub_list_ex;
   Printf.fprintf oc " true){
-  \t\t\t\tusleep(d(gen)*1000000);
-  \t\t\t\tROS_INFO(\"I'm node%d last from node%d, intercepted: [%%s]\", msg->data.c_str());\n" y x;
+  //\t\t\tusleep(d(gen)*1000000);
+  //\t\t\tros::Duration(rarray[index++%%1000]).sleep();
+  \t\t\t\tros::Time begin = ros::Time::now();
+  \t\t\t\tint32_t g = 0;
+  \t\t\t\twhile(ros::Duration(rarray[index%%1000]) > ros::Time::now() - begin){
+  \t\t\t\t\tg++;
+  \t\t\t\t}
+\t\t\t\tros::Duration end = ros::Time::now() - begin;
+  \t\t\t\tROS_INFO(\"node%d duration: ideal[%%f]real[%%f] \", rarray[index++%%1000],end.toSec());
+  \t\t\t\tROS_INFO(\"node%d >> node%d: [%%s]\", msg->data.c_str());\n" y x y;
   List.iter (fun z -> print11 y z oc) pub_list;
   List.iter (fun z -> print9 z y oc) sub_list_ex;
   Printf.fprintf oc "\t\t\t}
   \t\t\telse{
-  \t\t\t\tROS_INFO(\"I'm node%d, from node%d intercepted: [%%s]\", msg->data.c_str());
+  \t\t\t\tROS_INFO(\"node%d -> node%d: [%%s]\", msg->data.c_str());
   \t\t\t\tsub_%d_%d_flag = 1;
   \t\t\t}
-  \t\t}\n" y x x y
+  \t\t}\n" x y x y
 let creating_sub_pub_cpp i sub_list pub_list t oc=
   Printf.fprintf oc "
   #include \"ros/ros.h\"
@@ -185,13 +206,19 @@ let creating_sub_pub_cpp i sub_list pub_list t oc=
   std::normal_distribution<> d(%f, 0.005);
   class Node%d{
   \tpublic:
-  \t\tNode%d(){\n" t i i;
+  \t\tNode%d(){
+  \t\t\tindex = 0;
+  \t\t\tfor(int i = 0;i < sizeof(rarray) / sizeof(rarray[0]);++i){
+  \t\t\t\trarray[i] = d(gen);
+  \t\t\t}\n" t i i;
   List.iter (fun y -> print5 y i oc) sub_list;
   List.iter (fun y -> print6 i y oc) pub_list;
   Printf.fprintf oc "\t\t}\n";
   List.iter (fun y -> print12 y i (List.filter (fun x -> x !=y) sub_list) pub_list oc) sub_list;
   Printf.fprintf oc "\tprivate:
-  \t\tros::NodeHandle n; \n";
+  \t\tros::NodeHandle n;
+  \t\tint index;
+  \t\tdouble rarray[1000];\n";
   List.iter (fun y -> print7 i y oc) pub_list;
   List.iter (fun y -> print8 y i oc) sub_list;
   Printf.fprintf oc "};
@@ -211,14 +238,20 @@ let creating_node_cpp (i,t,pub_list,sub_list)=
     creating_sub_cpp i sub_list t oc
   else
     creating_sub_pub_cpp i sub_list pub_list t oc);close_out oc
-let rec creating_makefile_sub i oc=
+let rec creating_makefile_sub i flag oc=
   if(i != 0) then
       (Printf.fprintf oc 
 "add_executable(node%d src/node%d.cpp)
 target_link_libraries(node%d ${catkin_LIBRARIES})
-add_dependencies(node%d test_src_generate_messages_cpp)\n" i i i i;creating_makefile_sub (i-1) oc)
-  else ()
-let creating_makefile i = 
+add_dependencies(node%d test_src_generate_messages_cpp)\n" i i i i;creating_makefile_sub (i-1) flag oc)
+  else 
+    (if flag then 
+  (Printf.fprintf oc 
+"add_executable(node%d src/node%d.cpp)
+target_link_libraries(node%d ${catkin_LIBRARIES})
+add_dependencies(node%d test_src_generate_messages_cpp)\n" 0 0 0 0)
+  else ())
+let creating_makefile i flag = 
   let file = "CMakeLists.txt" in
   let oc = open_out file in
   Printf.fprintf oc 
@@ -229,11 +262,11 @@ add_definitions(-std=c++11)
 generate_messages(DEPENDENCIES std_msgs)
 catkin_package()
 include_directories(include ${catkin_INCLUDE_DIRS})\n";
-creating_makefile_sub i oc;close_out oc
+creating_makefile_sub i flag oc;close_out oc
 let writing_topic x y oc =
   Printf.fprintf oc "    - /topic_%d_%d\n" x y
 let writing_yaml (i,t,pub_list,sub_list) oc =
-  Printf.fprintf oc "- nodename:/node%d\n  core: 0\n  sub_topic:" i;
+  Printf.fprintf oc "- nodename: /node%d\n  core: 0\n  sub_topic:" i;
   (if sub_list = [] then
     (Printf.fprintf oc " \"null\"\n")
   else
@@ -244,14 +277,6 @@ let creating_yaml g =
   let file = "scheduler_rosch.yaml" in
   let oc = open_out file in
   List.iter (fun y -> writing_yaml y oc) g;close_out oc
-let topnode_list g =
-  List.filter (fun (i,t,pub_list,sub_list) -> sub_list = []) g
-let create_node0 g =
-  let tl = topnode_list g in
-  if (List.length tl != 1) then
-    (let temp = List.map (fun (i,t,pub_list,sub_list) -> i) tl in g @ [(0,((Random.float 0.02) +. 0.01),temp,[])] )
-  else
-    g
 let () =
   let arg = int_of_string(Sys.argv.(1)) in
   let graph_list = create_graph arg in
@@ -259,4 +284,4 @@ let () =
   let graph_temp2 = create_node0 graph_temp in
   let graph_temp3 = List.map (fun (i,t,pub_list,sub_list) -> (i,t,pub_list)) graph_temp2 in
   let graph_sub_pub = graph_io [] (List.rev graph_temp3) [] in
-  creating_dot graph_sub_pub;creating_dot2 graph_sub_pub;List.iter creating_node_cpp graph_sub_pub;creating_makefile arg;creating_yaml graph_sub_pub;()
+  creating_dot graph_sub_pub;creating_dot2 graph_sub_pub;List.iter creating_node_cpp graph_sub_pub;creating_makefile arg (node0_exists graph_sub_pub);creating_yaml graph_sub_pub;()
